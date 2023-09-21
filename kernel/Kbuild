@@ -22,6 +22,7 @@ endif
 ifeq ($(CONFIG_SOC_T31),y)
 include $(src)/sensors/$(SOC)/gc2053/Kbuild
 include $(src)/sensors/$(SOC)/gc2083/Kbuild
+#include $(src)/sensors/$(SOC)/gc4023/Kbuild
 include $(src)/sensors/$(SOC)/gc4653/Kbuild
 include $(src)/sensors/$(SOC)/imx307/Kbuild
 include $(src)/sensors/$(SOC)/jxf37/Kbuild
@@ -32,6 +33,7 @@ include $(src)/sensors/$(SOC)/sc200ai/Kbuild
 include $(src)/sensors/$(SOC)/sc2232h/Kbuild
 include $(src)/sensors/$(SOC)/sc2335/Kbuild
 include $(src)/sensors/$(SOC)/sc2336/Kbuild
+#include $(src)/sensors/$(SOC)/sc3335/Kbuild
 include $(src)/sensors/$(SOC)/sc3338/Kbuild
 include $(src)/sensors/$(SOC)/sc5235/Kbuild
 include $(src)/sensors/$(SOC)/sc4236/Kbuild
