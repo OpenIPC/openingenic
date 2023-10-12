@@ -8,6 +8,7 @@ ccflags-y += -I$(src)/audio/$(SOC)/oss3/include
 
 include $(src)/sinfo/Kbuild
 include $(src)/gpio/Kbuild
+include $(src)/misc/sample_pwm/Kbuild
 
 ifeq ($(CONFIG_SOC_T31)$(CONFIG_SOC_T40),y)
 include $(src)/avpu/$(SOC)/Kbuild
