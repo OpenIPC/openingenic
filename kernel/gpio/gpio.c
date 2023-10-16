@@ -19,23 +19,24 @@ module_param(debug, int, 0644);
 MODULE_PARM_DESC(debug, "Enable debugging output: 0=off, 1=on");
 
 #define DEBUG_PRINTK(fmt, ...) do { if (debug) printk(fmt, ##__VA_ARGS__); } while (0)
+#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 
 int claim_gpio(int gpio) {
-    DEBUG_PRINTK("gpio_claim: GPIO[%i] Requesting...\n", gpio);
+    dynamic_pr_debug("gpio_claim: GPIO[%i] Requesting...\n", gpio);
 
     if (!gpio_is_valid(gpio)) {
-        DEBUG_PRINTK("gpio_claim: GPIO[%i] is not valid.\n", gpio);
+        dynamic_pr_debug("gpio_claim: GPIO[%i] is not valid.\n", gpio);
         return -1;
     }
 
     if (gpio_request(gpio, "gpio_claimer") < 0) {
-        DEBUG_PRINTK("gpio_claim: Failed to request GPIO[%i]. It might be already in use or there's a conflict.\n", gpio);
+        dynamic_pr_debug("gpio_claim: Failed to request GPIO[%i]. It might be already in use or there's a conflict.\n", gpio);
         return -1;
     }
 
-    DEBUG_PRINTK("gpio_claim: GPIO[%i] Setting direction...\n", gpio);
+    dynamic_pr_debug("gpio_claim: GPIO[%i] Setting direction...\n", gpio);
     gpio_direction_output(gpio, 0);
-    DEBUG_PRINTK("gpio_claim: GPIO[%i] Exporting...\n", gpio);
+    dynamic_pr_debug("gpio_claim: GPIO[%i] Exporting...\n", gpio);
     gpio_export(gpio, true);
 
     return 0;
@@ -72,12 +73,12 @@ static const struct file_operations claim_proc_fops = {
 static __init int init_claim(void) {
     claim_proc_dir = proc_mkdir(PROC_DIR, NULL);
     if (!claim_proc_dir) {
-        DEBUG_PRINTK("gpio_claim: err: proc_mkdir failed\n");
+        dynamic_pr_debug("gpio_claim: err: proc_mkdir failed\n");
         return -ENOMEM;
     }
 
     if (!proc_create(PROC_ENTRY, 0644, claim_proc_dir, &claim_proc_fops)) {
-        DEBUG_PRINTK("gpio_claim: err: proc_create failed\n");
+        dynamic_pr_debug("gpio_claim: err: proc_create failed\n");
         proc_remove(claim_proc_dir);
         return -ENOMEM;
     }
