@@ -11,46 +11,54 @@ MODULE_DESCRIPTION("Ingenic GPIO Claimer");
 
 static struct proc_dir_entry *claim_proc;
 
+static int debug = 1;  // Default: Debugging on
+module_param(debug, int, 0644);
+MODULE_PARM_DESC(debug, "Enable debugging output: 0=off, 1=on");
+
+#define DEBUG_PRINTK(fmt, ...) do { if (debug) printk(fmt, ##__VA_ARGS__); } while (0)
+
 int claim_gpio(int gpio) {
-  pr_debug("GPIO[%i] Requesting...\n", gpio);
+    DEBUG_PRINTK("GPIO_CLAIM: GPIO[%i] Requesting...\n", gpio);
 
-  if (!gpio_is_valid(gpio)) {
-    pr_err("GPIO[%i] is not valid\n", gpio);
-    return -1;
-  }
+    if (!gpio_is_valid(gpio)) {
+        DEBUG_PRINTK("GPIO_CLAIM: GPIO[%i] is not valid.\n", gpio);
+        return -1;
+    }
 
-  if (gpio_request(gpio, 0) > 0)
-    return -1;
+    if (gpio_request(gpio, 0) > 0) {
+        DEBUG_PRINTK("GPIO_CLAIM: Failed to request GPIO[%i]. It might be already in use or there's a conflict.\n", gpio);
+        return -1;
+    }
 
-  pr_debug("GPIO[%i] Setting direction...\n", gpio);
-  gpio_direction_output(gpio, 0);
-  pr_debug("GPIO[%i] Exporting...\n", gpio);
-  gpio_export(gpio, true);
+    DEBUG_PRINTK("GPIO_CLAIM: GPIO[%i] Setting direction...\n", gpio);
+    gpio_direction_output(gpio, 0);
+    DEBUG_PRINTK("GPIO_CLAIM: GPIO[%i] Exporting...\n", gpio);
+    gpio_export(gpio, true);
 
-  return 0;
+    return 0;
 }
 
 ssize_t claim_proc_write(struct file *filp, const char *buf, size_t len, loff_t *off) {
-  int gpio;
-  int ret = 0;
-  char cmd[4] = {0};
+    int gpio;
+    int ret = 0;
+    char cmd[4] = {0};
 
-  if (len > 4) {
-    return -EFAULT;
-  }
-  if (copy_from_user(cmd, buf, len)) {
-    return -EFAULT;
-  }
-  gpio = simple_strtoul(cmd, NULL, 0);
-  ret = claim_gpio(gpio);
-  if (ret) {
-    pr_err("GPIO[%i] Error %i \n", gpio, ret);
-    return -EFAULT;
-  } else {
-    pr_debug("GPIO[%i] Claiming...\n", gpio);
-  }
+    if (len > 4) {
+        return -EFAULT;
+    }
+    if (copy_from_user(cmd, buf, len)) {
+        return -EFAULT;
+    }
+    gpio = simple_strtoul(cmd, NULL, 0);
+    ret = claim_gpio(gpio);
+    if (ret) {
+        DEBUG_PRINTK("GPIO_CLAIM: GPIO[%i] Error %i \n", gpio, ret);
+        return -EFAULT;
+    } else {
+        DEBUG_PRINTK("GPIO_CLAIM: GPIO[%i] Claiming...\n", gpio);
+    }
 
-  return len;
+    return len;
 }
 
 static const struct file_operations claim_proc_fops = {
@@ -59,16 +67,18 @@ static const struct file_operations claim_proc_fops = {
 };
 
 static __init int init_claim(void) {
-  claim_proc = proc_mkdir("jz/claim", 0);
-  if (!claim_proc) {
-    printk("err: jz_proc_mkdir failed\n");
-  }
-  proc_create_data("gpio", S_IRUGO, claim_proc, &claim_proc_fops, NULL);
-  printk("Ingenic GPIO claim module (c) OpenIPC.org\n");
-  return 0;
+    claim_proc = proc_mkdir("jz/claim", 0);
+    if (!claim_proc) {
+        DEBUG_PRINTK("GPIO_CLAIM: err: jz_proc_mkdir failed\n");
+    }
+    proc_create_data("gpio", S_IRUGO, claim_proc, &claim_proc_fops, NULL);
+    printk("Ingenic GPIO claim module (c) OpenIPC.org\n");
+    return 0;
 }
 
-static __exit void exit_claim(void) { proc_remove(claim_proc); }
+static __exit void exit_claim(void) {
+    proc_remove(claim_proc);
+}
 
 module_init(init_claim);
 module_exit(exit_claim);
