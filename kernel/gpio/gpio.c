@@ -3,13 +3,16 @@
 #include <linux/init.h>
 #include <linux/kernel.h>
 #include <linux/module.h>
-#include <jz_proc.h>
+#include <linux/uaccess.h>
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("OpenIPC");
-MODULE_DESCRIPTION("Ingenic GPIO Claimer");
+MODULE_DESCRIPTION("GPIO Claimer");
 
-static struct proc_dir_entry *claim_proc;
+#define PROC_DIR "gpio_claim"
+#define PROC_ENTRY "gpio"
+
+static struct proc_dir_entry *claim_proc_dir;
 
 static int debug = 1;  // Default: Debugging on
 module_param(debug, int, 0644);
@@ -18,21 +21,21 @@ MODULE_PARM_DESC(debug, "Enable debugging output: 0=off, 1=on");
 #define DEBUG_PRINTK(fmt, ...) do { if (debug) printk(fmt, ##__VA_ARGS__); } while (0)
 
 int claim_gpio(int gpio) {
-    DEBUG_PRINTK("GPIO_CLAIM: GPIO[%i] Requesting...\n", gpio);
+    DEBUG_PRINTK("gpio_claim: GPIO[%i] Requesting...\n", gpio);
 
     if (!gpio_is_valid(gpio)) {
-        DEBUG_PRINTK("GPIO_CLAIM: GPIO[%i] is not valid.\n", gpio);
+        DEBUG_PRINTK("gpio_claim: GPIO[%i] is not valid.\n", gpio);
         return -1;
     }
 
-    if (gpio_request(gpio, 0) > 0) {
-        DEBUG_PRINTK("GPIO_CLAIM: Failed to request GPIO[%i]. It might be already in use or there's a conflict.\n", gpio);
+    if (gpio_request(gpio, "gpio_claimer") < 0) {
+        DEBUG_PRINTK("gpio_claim: Failed to request GPIO[%i]. It might be already in use or there's a conflict.\n", gpio);
         return -1;
     }
 
-    DEBUG_PRINTK("GPIO_CLAIM: GPIO[%i] Setting direction...\n", gpio);
+    DEBUG_PRINTK("gpio_claim: GPIO[%i] Setting direction...\n", gpio);
     gpio_direction_output(gpio, 0);
-    DEBUG_PRINTK("GPIO_CLAIM: GPIO[%i] Exporting...\n", gpio);
+    DEBUG_PRINTK("gpio_claim: GPIO[%i] Exporting...\n", gpio);
     gpio_export(gpio, true);
 
     return 0;
@@ -52,10 +55,10 @@ ssize_t claim_proc_write(struct file *filp, const char *buf, size_t len, loff_t 
     gpio = simple_strtoul(cmd, NULL, 0);
     ret = claim_gpio(gpio);
     if (ret) {
-        DEBUG_PRINTK("GPIO_CLAIM: GPIO[%i] Error %i \n", gpio, ret);
+        DEBUG_PRINTK("gpio_claim: GPIO[%i] Error %i \n", gpio, ret);
         return -EFAULT;
     } else {
-        DEBUG_PRINTK("GPIO_CLAIM: GPIO[%i] Claiming...\n", gpio);
+        DEBUG_PRINTK("gpio_claim: GPIO[%i] Claiming...\n", gpio);
     }
 
     return len;
@@ -67,17 +70,25 @@ static const struct file_operations claim_proc_fops = {
 };
 
 static __init int init_claim(void) {
-    claim_proc = proc_mkdir("jz/claim", 0);
-    if (!claim_proc) {
-        DEBUG_PRINTK("GPIO_CLAIM: err: jz_proc_mkdir failed\n");
+    claim_proc_dir = proc_mkdir(PROC_DIR, NULL);
+    if (!claim_proc_dir) {
+        DEBUG_PRINTK("gpio_claim: err: proc_mkdir failed\n");
+        return -ENOMEM;
     }
-    proc_create_data("gpio", S_IRUGO, claim_proc, &claim_proc_fops, NULL);
-    printk("Ingenic GPIO claim module (c) OpenIPC.org\n");
+
+    if (!proc_create(PROC_ENTRY, 0644, claim_proc_dir, &claim_proc_fops)) {
+        DEBUG_PRINTK("gpio_claim: err: proc_create failed\n");
+        proc_remove(claim_proc_dir);
+        return -ENOMEM;
+    }
+
+    printk("GPIO claim module (c) OpenIPC.org\n");
     return 0;
 }
 
 static __exit void exit_claim(void) {
-    proc_remove(claim_proc);
+    remove_proc_entry(PROC_ENTRY, claim_proc_dir);
+    proc_remove(claim_proc_dir);
 }
 
 module_init(init_claim);
