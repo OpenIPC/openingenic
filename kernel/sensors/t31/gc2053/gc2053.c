@@ -26,14 +26,15 @@
 #define GC2053_CHIP_ID_L	(0x53)
 #define GC2053_REG_END		0xff
 #define GC2053_REG_DELAY	0x00
+#define GC2053_SUPPORT_40FPS_MIPI_SCLK (99000000)
 #define GC2053_SUPPORT_30FPS_MIPI_SCLK (78000000)
 #define GC2053_SUPPORT_25FPS_MIPI_SCLK (72000000)
 #define GC2053_SUPPORT_15FPS_MIPI_SCLK (39000000)
 #define GC2053_SUPPORT_30FPS_DVP_SCLK (74250000)
 #define GC2053_SUPPORT_15FPS_DVP_SCLK (37125000)
-#define SENSOR_OUTPUT_MAX_FPS 30
+#define SENSOR_OUTPUT_MAX_FPS 40
 #define SENSOR_OUTPUT_MIN_FPS 5
-#define SENSOR_VERSION	"H20211111a"
+#define SENSOR_VERSION	"H20230726a"
 
 static unsigned char vts0 = 0x05;
 static unsigned char vts1 = 0x8a;
@@ -276,8 +277,8 @@ static struct regval_list gc2053_init_regs_1920_1080_30fps_mipi[] = {
 	{0x8c, 0x12},
 	{0x8d, 0x92},
 	{0x90, 0x00},/*use frame length to change fps*/
-	{0x41, 0x05},
-	{0x42, 0x8a},/*vts for 25fps mipi*/
+	{0x41, 0x04},
+	{0x42, 0x9d},/*vts for 30fps mipi*/
 	{0x9d, 0x10},
 	{0xce, 0x7c},
 	{0xd2, 0x41},
@@ -962,6 +963,149 @@ static struct regval_list gc2053_init_regs_1920_1080_15fps_dvp[] = {
 	{0x3e,0x40},
 	{GC2053_REG_END, 0x00},	/* END MARKER */
 };
+
+static struct regval_list gc2053_init_regs_1920_1080_40fps_mipi[] = {
+        {0xfe, 0x80},
+        {0xfe, 0x80},
+        {0xfe, 0x80},
+        {0xfe, 0x00},
+        {0xf2, 0x00},
+        {0xf3, 0x00},
+        {0xf4, 0x36},
+        {0xf5, 0xc0},
+        {0xf6, 0x44},
+        {0xf7, 0x01},
+        {0xf8, 0x84},
+        {0xf9, 0x40},
+        {0xfc, 0x8e},
+        {0xfe, 0x00},
+        {0x87, 0x18},
+        {0xee, 0x30},
+        {0xd0, 0xb7},
+        {0x03, 0x04},
+        {0x04, 0x60},
+        {0x05, 0x04},
+        {0x06, 0x4c},
+        {0x07, 0x00},
+        {0x08, 0x11},
+        {0x09, 0x00},
+        {0x0a, 0x02},
+        {0x0b, 0x00},
+        {0x0c, 0x02},
+        {0x0d, 0x04},
+        {0x0e, 0x40},
+        {0x12, 0xe2},
+        {0x13, 0x16},
+        {0x19, 0x0a},
+        {0x21, 0x1c},
+        {0x28, 0x0a},
+        {0x29, 0x24},
+        {0x2b, 0x04},
+        {0x32, 0xf8},
+        {0x37, 0x03},
+        {0x39, 0x15},
+        {0x43, 0x07},
+        {0x44, 0x40},
+        {0x46, 0x0b},
+        {0x4b, 0x20},
+        {0x4e, 0x08},
+        {0x55, 0x20},
+        {0x66, 0x05},
+        {0x67, 0x05},
+        {0x77, 0x01},
+        {0x78, 0x00},
+        {0x7c, 0x93},
+        {0x8c, 0x12},
+        {0x8d, 0x92},
+        {0x90, 0x00},
+        {0x41, 0x04},
+        {0x42, 0x65},
+        /* {0x41, 0x0b}, */
+        /* {0x42, 0xbc}, */
+        {0x9d, 0x10},
+        {0xce, 0x7c},
+        {0xd2, 0x41},
+        {0xd3, 0xdc},
+        {0xe6, 0x50},
+        {0xb6, 0xc0},
+        {0xb0, 0x70},
+        {0xb1, 0x01},
+        {0xb2, 0x00},
+        {0xb3, 0x00},
+        {0xb4, 0x00},
+        {0xb8, 0x01},
+        {0xb9, 0x00},
+        {0x26, 0x30},
+        {0xfe, 0x01},
+        {0x40, 0x23},
+        {0x55, 0x07},
+        {0x60, 0x40},
+        {0xfe, 0x04},
+        {0x14, 0x78},
+        {0x15, 0x78},
+        {0x16, 0x78},
+        {0x17, 0x78},
+        {0xfe, 0x01},
+        {0x92, 0x00},
+        {0x94, 0x03},
+        {0x95, 0x04},
+        {0x96, 0x38},
+        {0x97, 0x07},
+        {0x98, 0x80},
+        {0xfe, 0x01},
+        {0x01, 0x05},
+        {0x02, 0x89},
+        {0x04, 0x01},
+        {0x07, 0xa6},
+        {0x08, 0xa9},
+        {0x09, 0xa8},
+        {0x0a, 0xa7},
+        {0x0b, 0xff},
+        {0x0c, 0xff},
+        {0x0f, 0x00},
+        {0x50, 0x1c},
+        {0x89, 0x03},
+        {0xfe, 0x04},
+        {0x28, 0x86},
+        {0x29, 0x86},
+        {0x2a, 0x86},
+        {0x2b, 0x68},
+        {0x2c, 0x68},
+        {0x2d, 0x68},
+        {0x2e, 0x68},
+        {0x2f, 0x68},
+        {0x30, 0x4f},
+        {0x31, 0x68},
+        {0x32, 0x67},
+        {0x33, 0x66},
+        {0x34, 0x66},
+        {0x35, 0x66},
+        {0x36, 0x66},
+        {0x37, 0x66},
+        {0x38, 0x62},
+        {0x39, 0x62},
+        {0x3a, 0x62},
+        {0x3b, 0x62},
+        {0x3c, 0x62},
+        {0x3d, 0x62},
+        {0x3e, 0x62},
+        {0x3f, 0x62},
+        {0xfe, 0x01},
+        {0x9a, 0x06},
+        {0xfe, 0x00},
+        {0x7b, 0x2a},
+        {0x23, 0x2d},
+        {0xfe, 0x03},
+        {0x01, 0x27},
+        {0x02, 0x5f},
+        {0x03, 0xb6},
+        {0x12, 0x80},
+        {0x13, 0x07},
+        {0x15, 0x10},
+        {0xfe, 0x00},
+        {0x3e, 0x91},
+        {GC2053_REG_END, 0x00},	/* END MARKER */
+};
 /*
  * the order of the jxf23_win_sizes is [full_resolution, preview_resolution].
  */
@@ -1011,9 +1155,18 @@ static struct tx_isp_sensor_win_setting gc2053_win_sizes[] = {
 		.colorspace	= V4L2_COLORSPACE_SRGB,
 		.regs 		= gc2053_init_regs_1920_1080_15fps_mipi,
 	},
+	/* 1920*1080 @ max 40fps mipi*/
+	{
+		.width		= 1920,
+		.height		= 1080,
+		.fps		= 40 << 16 | 1,
+		.mbus_code	= V4L2_MBUS_FMT_SRGGB10_1X10,
+		.colorspace	= V4L2_COLORSPACE_SRGB,
+		.regs 		= gc2053_init_regs_1920_1080_40fps_mipi,
+	},
 };
 
-struct tx_isp_sensor_win_setting *wsize = &gc2053_win_sizes[0];
+struct tx_isp_sensor_win_setting *wsize = &gc2053_win_sizes[5];
 
 /*
  * the part of driver was fixed.
@@ -1080,6 +1233,7 @@ int gc2053_write(struct tx_isp_subdev *sd, unsigned char reg,
 	return ret;
 }
 
+#if 0
 static int gc2053_read_array(struct tx_isp_subdev *sd, struct regval_list *vals)
 {
 	int ret;
@@ -1096,6 +1250,7 @@ static int gc2053_read_array(struct tx_isp_subdev *sd, struct regval_list *vals)
 	}
 	return 0;
 }
+#endif
 
 static int gc2053_write_array(struct tx_isp_subdev *sd, struct regval_list *vals)
 {
@@ -1140,6 +1295,7 @@ static int gc2053_detect(struct tx_isp_subdev *sd, unsigned int *ident)
 	return 0;
 }
 
+#if 0
 static int gc2053_set_expo(struct tx_isp_subdev *sd, int value)
 {
 	int ret = 0;
@@ -1177,7 +1333,8 @@ static int gc2053_set_expo(struct tx_isp_subdev *sd, int value)
 	return 0;
 }
 
-#if 0
+#endif
+#if 1
 static int gc2053_set_integration_time(struct tx_isp_subdev *sd, int value)
 {
 	int ret = 0;
@@ -1200,7 +1357,7 @@ static int gc2053_set_analog_gain(struct tx_isp_subdev *sd, int value)
 	ret = gc2053_write(sd, 0xfe, 0x00);
 	ret += gc2053_write(sd, 0xb4, val_lut[value].regb4);
 	ret += gc2053_write(sd, 0xb3, val_lut[value].regb3);
-	ret += gc2053_write(sd, 0xb2, val_lut[value].regb2);
+	//ret += gc2053_write(sd, 0xb2, val_lut[value].regb2);
 	ret += gc2053_write(sd, 0xb8, val_lut[value].dpc);
 	ret += gc2053_write(sd, 0xb9, val_lut[value].blc);
 	if (ret < 0) {
@@ -1294,6 +1451,9 @@ static int gc2053_set_fps(struct tx_isp_subdev *sd, int fps)
 	} else if((data_interface == TX_SENSOR_DATA_INTERFACE_MIPI) && (sensor_max_fps == TX_SENSOR_MAX_FPS_15)){
 		max_fps = TX_SENSOR_MAX_FPS_15;
 		wpclk = GC2053_SUPPORT_15FPS_MIPI_SCLK;
+	} else if((data_interface == TX_SENSOR_DATA_INTERFACE_MIPI) && (sensor_max_fps == TX_SENSOR_MAX_FPS_40)){
+		max_fps = TX_SENSOR_MAX_FPS_40;
+		wpclk = GC2053_SUPPORT_40FPS_MIPI_SCLK;
 	} else {
 		ISP_ERROR("Can not support this data interface and fps!!!\n");
 	}
@@ -1427,16 +1587,18 @@ static int gc2053_sensor_ops_ioctl(struct tx_isp_subdev *sd, unsigned int cmd, v
 	}
 	switch(cmd){
 	case TX_ISP_EVENT_SENSOR_EXPO:
+#if 0
 		if(arg)
 			ret = gc2053_set_expo(sd, *(int*)arg);
+#endif
 		break;
 	case TX_ISP_EVENT_SENSOR_INT_TIME:
-		//if(arg)
-		//	ret = gc2053_set_integration_time(sd, *(int*)arg);
+		if(arg)
+			ret = gc2053_set_integration_time(sd, *(int*)arg);
 		break;
 	case TX_ISP_EVENT_SENSOR_AGAIN:
-		//if(arg)
-		//	ret = gc2053_set_analog_gain(sd, *(int*)arg);
+		if(arg)
+			ret = gc2053_set_analog_gain(sd, *(int*)arg);
 		break;
 	case TX_ISP_EVENT_SENSOR_DGAIN:
 		if(arg)
@@ -1654,6 +1816,19 @@ static int gc2053_probe(struct i2c_client *client, const struct i2c_device_id *i
 		vts1 = 0x9d;
 		vtsn0 = 0x04;
 		vtsn1 = 0x9d;
+	} else if((data_interface == TX_SENSOR_DATA_INTERFACE_MIPI) && (sensor_max_fps == TX_SENSOR_MAX_FPS_40)){
+                wsize = &gc2053_win_sizes[5];
+                memcpy((void*)(&(gc2053_attr.mipi)),(void*)(&gc2053_mipi),sizeof(gc2053_mipi));
+                gc2053_attr.max_integration_time_native = 0x465 - 8;
+                gc2053_attr.integration_time_limit = 0x465 - 8;
+                gc2053_attr.total_width = 0x44c * 2;
+                gc2053_attr.total_height = 0x465;
+                gc2053_attr.max_integration_time = 0x465 - 8;
+                gc2053_attr.one_line_expr_in_us = 11;
+                vts0 = 0x04;
+                vts1 = 0x65;
+                vtsn0 = 0x04;
+                vtsn1 = 0x65;
 	} else {
 		ISP_ERROR("Can not support this data interface and fps!!!\n");
 		goto err_set_sensor_data_interface;
@@ -1664,7 +1839,7 @@ static int gc2053_probe(struct i2c_client *client, const struct i2c_device_id *i
 	*/
 	gc2053_attr.max_again = 444864;
 	gc2053_attr.max_dgain = 0;
-	gc2053_attr.expo_fs = 1;
+	gc2053_attr.expo_fs = 0;
 	sd = &sensor->sd;
 	video = &sensor->video;
 	sensor->video.shvflip = shvflip;
