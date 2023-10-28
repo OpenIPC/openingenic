@@ -44,7 +44,7 @@ include $(src)/sensors/$(SOC)/sc4236/Kbuild
 endif
 
 ifeq ($(CONFIG_SOC_T40),y)
-#include $(src)/sensors/$(SOC)/gc4653/Kbuild
+include $(src)/sensors/$(SOC)/gc4653/Kbuild
 include $(src)/sensors/$(SOC)/imx307/Kbuild
 include $(src)/sensors/$(SOC)/imx334/Kbuild
 include $(src)/sensors/$(SOC)/imx335/Kbuild
