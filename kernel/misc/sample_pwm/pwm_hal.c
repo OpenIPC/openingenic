@@ -353,7 +353,7 @@ static int jz_pwm_probe(struct platform_device *pdev)
 		gpwm->pwm_device_t[i]->pwm_device = devm_pwm_get(&pdev->dev, pd_name);
 		if (IS_ERR(gpwm->pwm_device_t[i]->pwm_device)) {
 			dev_err(&pdev->dev, "devm_pwm_get error !");
-			return -ENOMEM;
+			continue;  // Skip to next iteration, dont stop
 		}
 
 		gpwm->pwm_device_t[i]->duty = -1;
