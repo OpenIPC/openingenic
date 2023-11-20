@@ -222,10 +222,11 @@ SENSOR_INFO_T g_sinfo[] =
 	{"gc4023", 0x29,  "cgu_cim", 24000000, {0x40, 0x23}, 1, {0x03f0, 0x03f1}, 2, 2, NULL},
 	{"hm2131", 0x24,  "cgu_cim", 24000000, {0x14, 0x0a}, 1, {0x0000, 0x0001}, 2, 2, NULL},
 	{"hm2140", 0x24,  "cgu_cim", 24000000, {0x21, 0x40}, 1, {0x0000, 0x0001}, 2, 2, NULL},
+	// Several Sony sensors share identical ID's, for now, lets leave the imx307 enabled and disable the others.
 	//{"imx219", 0x1a,  "div_cim", 24000000, {0xA0, 0xB2}, 1, {0x3008, 0x301e}, 2, 2, NULL},
 	{"imx225", 0x1a,  "cgu_cim", 24000000, {0x10, 0x01}, 1, {0x3004, 0x3013}, 2, 2, NULL},
 	//{"imx291", 0x1a,  "cgu_cim", 37125000, {0xA0, 0xB2}, 1, {0x3008, 0x301e}, 2, 2, NULL},
-	//{"imx307", 0x1a,  "cgu_cim", 37125000, {0xA0, 0xB2}, 1, {0x3008, 0x301e}, 2, 2, NULL},
+	{"imx307", 0x1a,  "cgu_cim", 37125000, {0xA0, 0xB2}, 1, {0x3008, 0x301e}, 2, 2, NULL},
 	{"imx322", 0x1a,  "cgu_cim", 37125000, {0x50, 0x0}, 1, {0x301c, 0x301d}, 2, 2, NULL},
 	{"imx323", 0x1a,  "cgu_cim", 37125000, {0x50, 0x0}, 1, {0x301c, 0x301d}, 2, 2, NULL},
 	{"imx327", 0x1a,  "cgu_cim", 37125000, {0xB2, 0x01}, 1, {0x301e, 0x301f}, 2, 2, NULL},
