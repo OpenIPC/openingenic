@@ -6,20 +6,29 @@ ccflags-y := -DRELEASE -DUSER_BIT_32 -DKERNEL_BIT_32 -Wno-date-time -D_GNU_SOURC
 ccflags-y += -I$(src)/isp/$(SOC)/include
 ccflags-y += -I$(src)/audio/$(SOC)/oss3/include
 
+#### ALL #####
 include $(src)/sinfo/Kbuild
 include $(src)/gpio/Kbuild
 include $(src)/misc/sample_pwm/Kbuild
 
-ifeq ($(CONFIG_SOC_T31)$(CONFIG_SOC_T40),y)
-include $(src)/avpu/$(SOC)/Kbuild
-include $(src)/isp/$(SOC)/Kbuild
-ifeq ($(CONFIG_SOC_T40),y)
-include $(src)/audio/$(SOC)/oss3/Kbuild
-else
+#### PLATFORM ####
+ifeq ($(CONFIG_SOC_T31),y)
 include $(src)/audio/$(SOC)/oss2/Kbuild
 endif
+
+ifeq ($(CONFIG_SOC_T31)$(CONFIG_SOC_T40)$(CONFIG_SOC_T41),y)
+include $(src)/avpu/$(SOC)/Kbuild
+include $(src)/isp/$(SOC)/Kbuild
 endif
 
+ifeq ($(CONFIG_SOC_T40)$(CONFIG_SOC_T41),y)
+include $(src)/misc/mpsys-driver/Kbuild
+include $(src)/misc/soc-nna/Kbuild
+include $(src)/misc/jz-dtrng/Kbuild
+include $(src)/audio/$(SOC)/oss3/Kbuild
+endif
+
+#### SENSORS ####
 ifeq ($(CONFIG_SOC_T31),y)
 include $(src)/sensors/$(SOC)/gc2053/Kbuild
 include $(src)/sensors/$(SOC)/gc2083/Kbuild
