@@ -1,0 +1,13 @@
+MODULE_NAME := sensor_jxf32_t41
+OUT := $(MODULE_NAME)
+
+DIR=sensors/$(SOC)/jxf32
+
+SRCS := $(DIR)/jxf32/jxf32.c
+
+OBJS := $(SRCS:%.c=%.o) $(ASM_SRCS:%.S=%.o)
+
+$(OUT)-objs := $(OBJS)
+
+obj-m += $(OUT).o
+

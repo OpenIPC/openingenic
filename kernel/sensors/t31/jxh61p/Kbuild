@@ -1,0 +1,13 @@
+MODULE_NAME := sensor_jxh61p_t41
+OUT := $(MODULE_NAME)
+
+DIR=sensors/$(SOC)/jxh61p
+
+SRCS := $(DIR)/jxh61p/jxh61p.c
+
+OBJS := $(SRCS:%.c=%.o) $(ASM_SRCS:%.S=%.o)
+
+$(OUT)-objs := $(OBJS)
+
+obj-m += $(OUT).o
+
