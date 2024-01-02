@@ -1,0 +1,13 @@
+MODULE_NAME := sensor_gc5035_t41
+OUT := $(MODULE_NAME)
+
+DIR=sensors/$(SOC)/gc5035
+
+SRCS := $(DIR)/gc5035/gc5035.c
+
+OBJS := $(SRCS:%.c=%.o) $(ASM_SRCS:%.S=%.o)
+
+$(OUT)-objs := $(OBJS)
+
+obj-m += $(OUT).o
+

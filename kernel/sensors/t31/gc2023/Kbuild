@@ -1,0 +1,13 @@
+MODULE_NAME := sensor_gc2023_t41
+OUT := $(MODULE_NAME)
+
+DIR=sensors/$(SOC)/gc2023
+
+SRCS := $(DIR)/gc2023/gc2023.c
+
+OBJS := $(SRCS:%.c=%.o) $(ASM_SRCS:%.S=%.o)
+
+$(OUT)-objs := $(OBJS)
+
+obj-m += $(OUT).o
+

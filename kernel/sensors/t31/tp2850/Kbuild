@@ -1,0 +1,13 @@
+MODULE_NAME := sensor_tp2850_t41
+OUT := $(MODULE_NAME)
+
+DIR=sensors/$(SOC)/tp2850
+
+SRCS := $(DIR)/tp2850/tp2850.c
+
+OBJS := $(SRCS:%.c=%.o) $(ASM_SRCS:%.S=%.o)
+
+$(OUT)-objs := $(OBJS)
+
+obj-m += $(OUT).o
+
