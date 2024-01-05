@@ -1,0 +1,8 @@
+include $(src)/sensors/$(SOC)/jxf23/Kbuild
+include $(src)/sensors/$(SOC)/jxf37/Kbuild
+include $(src)/sensors/$(SOC)/os02b10/Kbuild
+include $(src)/sensors/$(SOC)/sc1245a/Kbuild
+include $(src)/sensors/$(SOC)/sc2230/Kbuild
+include $(src)/sensors/$(SOC)/sc2232/Kbuild
+include $(src)/sensors/$(SOC)/sc2232h/Kbuild
+include $(src)/sensors/$(SOC)/sc2335/Kbuild

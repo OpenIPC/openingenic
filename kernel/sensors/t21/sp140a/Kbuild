@@ -1,0 +1,12 @@
+MODULE_NAME := sensor_sp140a_$(SOC)
+OUT := $(MODULE_NAME)
+
+DIR=sensors/$(SOC)
+
+SRCS := $(DIR)/sp140a/sp140a.c
+
+OBJS := $(SRCS:%.c=%.o) $(ASM_SRCS:%.S=%.o)
+
+$(OUT)-objs := $(OBJS)
+
+obj-m += $(OUT).o
