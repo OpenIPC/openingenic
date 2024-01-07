@@ -6,3 +6,4 @@ include $(src)/sensors/$(SOC)/sc2230/Kbuild
 include $(src)/sensors/$(SOC)/sc2232/Kbuild
 include $(src)/sensors/$(SOC)/sc2232h/Kbuild
 include $(src)/sensors/$(SOC)/sc2335/Kbuild
+include $(src)/sensors/$(SOC)/ov2735b/Kbuild
