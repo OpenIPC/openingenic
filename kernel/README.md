@@ -11,4 +11,4 @@ make \
     M=$PWD
 ```
 
-where `SOC` can be set to options `t31`, `t40` and other wip.
+where `SOC` can be set to options `t10`, `t20`, `t21`, `t23`, `t31`, `t40` or `t41`.
