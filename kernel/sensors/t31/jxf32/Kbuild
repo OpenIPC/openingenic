@@ -1,4 +1,4 @@
-MODULE_NAME := sensor_jxf32_t41
+MODULE_NAME := sensor_jxf32_t31
 OUT := $(MODULE_NAME)
 
 DIR=sensors/$(SOC)/jxf32

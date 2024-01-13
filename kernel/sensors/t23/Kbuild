@@ -1,0 +1,7 @@
+include $(src)/sensors/$(SOC)/gc2053/Kbuild
+include $(src)/sensors/$(SOC)/imx327/Kbuild
+include $(src)/sensors/$(SOC)/jxf23/Kbuild
+include $(src)/sensors/$(SOC)/sc200ai/Kbuild
+include $(src)/sensors/$(SOC)/sc2310/Kbuild
+include $(src)/sensors/$(SOC)/sc2331/Kbuild
+include $(src)/sensors/$(SOC)/sc301IoT/Kbuild
