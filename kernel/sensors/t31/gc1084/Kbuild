@@ -1,7 +1,7 @@
 MODULE_NAME := sensor_gc1084_t31
 OUT := $(MODULE_NAME)
 
-DIR=sensors/$(SOC)/gc1084
+DIR=sensors/$(SOC)
 
 SRCS := $(DIR)/gc1084/gc1084.c
 

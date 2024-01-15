@@ -1,7 +1,7 @@
 MODULE_NAME := sensor_sc230ai_t31
 OUT := $(MODULE_NAME)
 
-DIR=sensors/$(SOC)/sc230ai
+DIR=sensors/$(SOC)
 
 SRCS := $(DIR)/sc230ai/sc230ai.c
 

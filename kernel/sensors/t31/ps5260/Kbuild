@@ -1,7 +1,7 @@
 MODULE_NAME := sensor_ps5260_t31
 OUT := $(MODULE_NAME)
 
-DIR=sensors/$(SOC)/ps5260
+DIR=sensors/$(SOC)
 
 SRCS := $(DIR)/ps5260/ps5260.c
 

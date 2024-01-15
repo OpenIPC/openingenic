@@ -1,7 +1,7 @@
 MODULE_NAME := sensor_sc301IoT_t31
 OUT := $(MODULE_NAME)
 
-DIR=sensors/$(SOC)/sc301IoT
+DIR=sensors/$(SOC)
 
 SRCS := $(DIR)/sc301IoT/sc301IoT.c
 

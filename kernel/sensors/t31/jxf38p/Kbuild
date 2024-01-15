@@ -1,7 +1,7 @@
 MODULE_NAME := sensor_jxf38p_t31
 OUT := $(MODULE_NAME)
 
-DIR=sensors/$(SOC)/jxf38p
+DIR=sensors/$(SOC)
 
 SRCS := $(DIR)/jxf38p/jxf38p.c
 

@@ -1,7 +1,7 @@
 MODULE_NAME := sensor_c3390_t31
 OUT := $(MODULE_NAME)
 
-DIR=sensors/$(SOC)/c3390
+DIR=sensors/$(SOC)
 
 SRCS := $(DIR)/c3390/c3390.c
 

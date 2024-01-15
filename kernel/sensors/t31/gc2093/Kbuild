@@ -1,7 +1,7 @@
 MODULE_NAME := sensor_gc2093_t31
 OUT := $(MODULE_NAME)
 
-DIR=sensors/$(SOC)/gc2093
+DIR=sensors/$(SOC)
 
 SRCS := $(DIR)/gc2093/gc2093.c
 
