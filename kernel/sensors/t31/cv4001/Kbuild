@@ -1,7 +1,7 @@
 MODULE_NAME := sensor_cv4001_t31
 OUT := $(MODULE_NAME)
 
-DIR=sensors/$(SOC)/cv4001
+DIR=sensors/$(SOC)
 
 SRCS := $(DIR)/cv4001/cv4001.c
 
