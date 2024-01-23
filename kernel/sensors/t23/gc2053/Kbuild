@@ -1,4 +1,4 @@
-MODULE_NAME := sensor_gc2053_t23
+MODULE_NAME := sensor_gc2053_$(SOC)
 OUT := $(MODULE_NAME)
 
 DIR=sensors/$(SOC)

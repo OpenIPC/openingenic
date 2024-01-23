@@ -1,4 +1,4 @@
-MODULE_NAME := sensor_imx298_t31
+MODULE_NAME := sensor_imx298_$(SOC)
 OUT := $(MODULE_NAME)
 
 DIR=sensors/$(SOC)
