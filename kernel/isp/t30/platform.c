@@ -20,7 +20,7 @@
 
 #include <mach/platform.h>
 #include <txx-isp.h>
-/*#include "platform.h"*/
+
 static u64 tx_isp_module_dma_mask = ~(u64)0;
 
 #define ISP_LDC_IOBASE 		0x130a0000
