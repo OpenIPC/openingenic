@@ -13,7 +13,7 @@ include $(src)/misc/sample_pwm/Kbuild
 include $(src)/misc/motor/Kbuild
 
 #### PLATFORM ####
-ifeq ($(CONFIG_SOC_T10)$(CONFIG_SOC_T20)$(CONFIG_SOC_T21)$(CONFIG_SOC_T31),y)
+ifeq ($(CONFIG_SOC_T10)$(CONFIG_SOC_T20)$(CONFIG_SOC_T21)$(CONFIG_SOC_T30)$(CONFIG_SOC_T31),y)
 include $(src)/audio/$(SOC)/oss2/Kbuild
 endif
 
@@ -25,7 +25,7 @@ ifeq ($(CONFIG_SOC_T31)$(CONFIG_SOC_T40)$(CONFIG_SOC_T41),y)
 include $(src)/avpu/$(SOC)/Kbuild
 endif
 
-ifeq ($(CONFIG_SOC_T10)$(CONFIG_SOC_T20)$(CONFIG_SOC_T21)$(CONFIG_SOC_T23)$(CONFIG_SOC_T31)$(CONFIG_SOC_T40)$(CONFIG_SOC_T41),y)
+ifeq ($(CONFIG_SOC_T10)$(CONFIG_SOC_T20)$(CONFIG_SOC_T21)$(CONFIG_SOC_T23)$(CONFIG_SOC_T30)$(CONFIG_SOC_T31)$(CONFIG_SOC_T40)$(CONFIG_SOC_T41),y)
 include $(src)/isp/$(SOC)/Kbuild
 endif
 
@@ -36,6 +36,10 @@ include $(src)/misc/jz-dtrng/Kbuild
 endif
 
 #### SENSORS ####
-ifeq ($(CONFIG_SOC_T10)$(CONFIG_SOC_T20)$(CONFIG_SOC_T21)$(CONFIG_SOC_T23)$(CONFIG_SOC_T31)$(CONFIG_SOC_T40),y)
+ifeq ($(CONFIG_SOC_T10)$(CONFIG_SOC_T20)$(CONFIG_SOC_T21)$(CONFIG_SOC_T23)$(CONFIG_SOC_T30)$(CONFIG_SOC_T31)$(CONFIG_SOC_T40)$(CONFIG_SOC_T41),y)
+ifeq ($(SNS),)
 include $(src)/sensors/$(SOC)/Kbuild
+else
+include $(src)/sensors/$(SOC)/$(SNS)/Kbuild
+endif
 endif
