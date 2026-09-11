@@ -8,3 +8,4 @@ include $(src)/sensors/$(SOC)/jxh65/Kbuild
 include $(src)/sensors/$(SOC)/jxk02/Kbuild
 include $(src)/sensors/$(SOC)/jxv01/Kbuild
 include $(src)/sensors/$(SOC)/sc2135/Kbuild
+include $(src)/sensors/$(SOC)/sc2232/Kbuild
