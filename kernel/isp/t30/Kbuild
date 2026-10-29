@@ -9,7 +9,6 @@ SRCS := \
     $(DIR)/apical-isp/apical_calibrations_init.c \
     $(DIR)/apical-isp/apical_custom_initialization.c \
     $(DIR)/apical-isp/apical_dynamic_calibrations.c \
-    $(DIR)/apical-isp/apical_isp_io.c \
     $(DIR)/apical-isp/apical_static_calibrations.c \
     $(DIR)/apical-isp/log.c \
     $(DIR)/apical-isp/sensor_drv.c \
