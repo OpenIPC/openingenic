@@ -1,7 +1,7 @@
 # The default T41 build (no SNS) makes only the sensors OpenIPC firmware
-# ships ISP tuning for: the T41 SDK 1.2.0 sensor_settings_t41, in its
-# ingenic-osdrv-t41 package. A sensor commented out below has no tuning
-# there, so its driver alone cannot stream. Build it with SNS=<sensor>,
+# ships ISP tuning for in ingenic-osdrv-t41 (SDK 1.2.0 plus Zeratul
+# GC5603). A sensor commented out below has no tuning there, so its
+# driver alone cannot stream. Build it with SNS=<sensor>,
 # which includes sensors/t41/<sensor>/Kbuild directly, or uncomment its
 # line when its tuning file is added to the firmware.
 
@@ -16,7 +16,7 @@ include $(src)/sensors/$(SOC)/gc2063/Kbuild
 include $(src)/sensors/$(SOC)/gc3003a/Kbuild
 include $(src)/sensors/$(SOC)/gc4023/Kbuild
 include $(src)/sensors/$(SOC)/gc4663/Kbuild
-#include $(src)/sensors/$(SOC)/gc5603/Kbuild
+include $(src)/sensors/$(SOC)/gc5603/Kbuild
 #include $(src)/sensors/$(SOC)/gc5613/Kbuild
 #include $(src)/sensors/$(SOC)/gc8613/Kbuild
 include $(src)/sensors/$(SOC)/imx327/Kbuild
