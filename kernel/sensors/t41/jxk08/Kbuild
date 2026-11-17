@@ -1,7 +1,7 @@
 MODULE_NAME := sensor_jxk08_$(SOC)
 OUT := $(MODULE_NAME)
 
-DIR=sensors/$(SOC)/jxk08
+DIR=sensors/$(SOC)
 
 SRCS := $(DIR)/jxk08/jxk08.c
 

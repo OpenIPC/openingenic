@@ -136,7 +136,7 @@ struct motor_device {
 	unsigned int counter;
 	struct completion stop_completion;
 	unsigned int wait_stop;
-#ifdef CONFIG_SOC_T40
+#if defined(CONFIG_SOC_T40) || defined(CONFIG_SOC_T41)
 	struct ingenic_tcu_chn *tcu;
 #else
 	struct jz_tcu_chn *tcu;

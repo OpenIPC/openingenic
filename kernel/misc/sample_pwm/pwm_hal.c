@@ -16,14 +16,14 @@
 #include <linux/module.h>
 #include <linux/miscdevice.h>
 #include <linux/platform_device.h>
-#ifdef CONFIG_SOC_T40
+#if defined(CONFIG_SOC_T40) || defined(CONFIG_SOC_T41)
 #include <linux/mfd/ingenic-tcu.h>
 #else
 #include <linux/mfd/jz_tcu.h>
 #endif
 #include <linux/spinlock.h>
 
-#if defined(CONFIG_SOC_T30) || defined(CONFIG_SOC_T40)
+#if defined(CONFIG_SOC_T30) || defined(CONFIG_SOC_T40) || defined(CONFIG_SOC_T41)
 #define PWM_NUM		8
 #else /* other soc type */
 #define PWM_NUM		4
@@ -41,7 +41,7 @@ struct platform_device pwm_device = {
 
 
 struct pwm_lookup jz_pwm_lookup[] = {
-#ifdef CONFIG_SOC_T40
+#if defined(CONFIG_SOC_T40) || defined(CONFIG_SOC_T41)
 #ifdef CONFIG_PWM0
 	PWM_LOOKUP("ingenic,tcu_chn0.0", 1, "pwm-jz", "pwm-jz.0", 2000, 1),
 #endif
@@ -128,6 +128,23 @@ static int pwm_jz_release(struct inode *inode, struct file *filp)
 	return 0;
 }
 
+/*
+ * The channel id names, or NULL. A slot is empty when its CONFIG_PWMn is
+ * off (T30/T40/T41 have eight slots, the Kbuild enables 0-3) and holds an
+ * error pointer when devm_pwm_get() failed in probe.
+ */
+static struct pwm_device_t *pwm_jz_chan(struct pwm_jz_t *gpwm, int id)
+{
+	struct pwm_device_t *ch;
+
+	if ((id >= PWM_NUM) || (id < 0))
+		return NULL;
+	ch = gpwm->pwm_device_t[id];
+	if ((ch == NULL) || IS_ERR_OR_NULL(ch->pwm_device))
+		return NULL;
+	return ch;
+}
+
 static long pwm_jz_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 {
 	int id, ret = 0;
@@ -146,8 +163,8 @@ static long pwm_jz_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 			}
 
 			id = pwm_ioctl.index;
-			if((id >= PWM_NUM) || (id < 0)) {
-				dev_err(gpwm->dev, "ioctl error(%d) !\n", __LINE__);
+			if(pwm_jz_chan(gpwm, id) == NULL) {
+				dev_err(gpwm->dev, "pwm%d is not enabled !\n", id);
 				ret = -1;
 				break;
 			}
@@ -188,6 +205,11 @@ static long pwm_jz_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 				break;
 			}
 			id = pwm_ioctl.index;
+			if(pwm_jz_chan(gpwm, id) == NULL) {
+				dev_err(gpwm->dev, "pwm%d is not enabled !\n", id);
+				ret = -1;
+				break;
+			}
 			gpwm->pwm_device_t[id]->duty = pwm_ioctl.duty;
 			pwm_config(gpwm->pwm_device_t[id]->pwm_device, gpwm->pwm_device_t[id]->duty, gpwm->pwm_device_t[id]->period);
 
@@ -195,14 +217,8 @@ static long pwm_jz_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 		case PWM_ENABLE:
 			id = (int)arg;
 
-			if((id >= PWM_NUM) || (id < 0)) {
-				dev_err(gpwm->dev, "ioctl error(%d) !\n", __LINE__);
-				ret = -1;
-				break;
-			}
-
-			if((gpwm->pwm_device_t[id]->pwm_device == NULL) || (IS_ERR(gpwm->pwm_device_t[id]->pwm_device))) {
-				dev_err(gpwm->dev, "pwm could not work !\n");
+			if(pwm_jz_chan(gpwm, id) == NULL) {
+				dev_err(gpwm->dev, "pwm%d is not enabled !\n", id);
 				ret = -1;
 				break;
 			}
@@ -226,14 +242,8 @@ static long pwm_jz_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 		case PWM_DISABLE:
 			id = (int)arg;
 
-			if((id >= PWM_NUM) || (id < 0)) {
-				dev_err(gpwm->dev, "ioctl error(%d) !\n", __LINE__);
-				ret = -1;
-				break;
-			}
-
-			if((gpwm->pwm_device_t[id]->pwm_device == NULL) || (IS_ERR(gpwm->pwm_device_t[id]->pwm_device))) {
-				dev_err(gpwm->dev, "pwm could not work !\n");
+			if(pwm_jz_chan(gpwm, id) == NULL) {
+				dev_err(gpwm->dev, "pwm%d is not enabled !\n", id);
 				ret = -1;
 				break;
 			}
@@ -257,8 +267,8 @@ static long pwm_jz_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 
 			id = pwm_ioctl.index;
 
-			if((id >= PWM_NUM) || (id < 0)) {
-				dev_err(gpwm->dev, "ioctl error(%d) !\n", __LINE__);
+			if(pwm_jz_chan(gpwm, id) == NULL) {
+				dev_err(gpwm->dev, "pwm%d is not enabled !\n", id);
 				ret = -1;
 				break;
 			}
@@ -390,10 +400,10 @@ static int jz_pwm_remove(struct platform_device *pdev)
 	misc_deregister(&gpwm->mdev);
 
 	for(i = 0; i < PWM_NUM; i++) {
-		if(gpwm->pwm_device_t[i]->pwm_device){
+		if(pwm_jz_chan(gpwm, i))
 			devm_pwm_put(&pdev->dev, gpwm->pwm_device_t[i]->pwm_device);
+		if(gpwm->pwm_device_t[i])
 			devm_kfree(&pdev->dev, gpwm->pwm_device_t[i]);
-		}
 	}
 	devm_kfree(&pdev->dev, gpwm);
 	platform_set_drvdata(pdev, NULL);

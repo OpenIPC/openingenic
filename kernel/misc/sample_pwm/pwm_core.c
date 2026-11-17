@@ -10,7 +10,7 @@
 #include <linux/platform_device.h>
 #include <linux/pwm.h>
 #include <linux/mfd/core.h>
-#ifdef CONFIG_SOC_T40
+#if defined(CONFIG_SOC_T40) || defined(CONFIG_SOC_T41)
 #include <linux/mfd/ingenic-tcu.h>
 #else
 #include <linux/mfd/jz_tcu.h>
@@ -19,14 +19,14 @@
 #include <soc/gpio.h>
 #include <linux/slab.h>
 
-#if defined(CONFIG_SOC_T30) || defined(CONFIG_SOC_T21) || defined(CONFIG_SOC_T40)
+#if defined(CONFIG_SOC_T30) || defined(CONFIG_SOC_T21) || defined(CONFIG_SOC_T40) || defined(CONFIG_SOC_T41)
 #define PWM_NUM		8
 #else /* other soc type */
 #define PWM_NUM		4
 #endif
 static int jz_pwm_en[PWM_NUM] = {0};
 #define PWM_DRIVER_VERSION "H20210412a"
-#ifdef CONFIG_SOC_T40
+#if defined(CONFIG_SOC_T40) || defined(CONFIG_SOC_T41)
 struct jz_pwm_device{
 	short id;
 	const char *label;
@@ -39,6 +39,26 @@ struct jz_pwm_gpio
 	unsigned int pins;
 	enum gpio_function func;
 };
+#ifdef CONFIG_SOC_T41
+/*
+ * T41 (t41-pinctrl.dtsi). Channels 0-3 sit on the SDK's pwm_pc group,
+ * PC15-PC18 function 2; their alternatives (PB17/PB18/PB8/PB9) are MSC1 and
+ * GMAC pins. Channels 4-7 have only PB13-PB16 or PD9-PD12, both function 2:
+ * PB13-PB16 carry GMAC RMII on the Tomcat reference board, PD9-PD12 its
+ * UART2, so PD it is -- and CONFIG_PWM4..7 are off in Kbuild. T40's table
+ * must not be used here: its PC2-PC7 are T41's MSC1 (SD card) pins.
+ */
+struct jz_pwm_gpio pwm_pin[PWM_NUM] = {
+	[0] = {.group = GPIO_PORT_C, .pins = 1 << 15, .func = GPIO_FUNC_2},
+	[1] = {.group = GPIO_PORT_C, .pins = 1 << 16, .func = GPIO_FUNC_2},
+	[2] = {.group = GPIO_PORT_C, .pins = 1 << 17, .func = GPIO_FUNC_2},
+	[3] = {.group = GPIO_PORT_C, .pins = 1 << 18, .func = GPIO_FUNC_2},
+	[4] = {.group = GPIO_PORT_D, .pins = 1 << 9,  .func = GPIO_FUNC_2},
+	[5] = {.group = GPIO_PORT_D, .pins = 1 << 10, .func = GPIO_FUNC_2},
+	[6] = {.group = GPIO_PORT_D, .pins = 1 << 11, .func = GPIO_FUNC_2},
+	[7] = {.group = GPIO_PORT_D, .pins = 1 << 12, .func = GPIO_FUNC_2},
+};
+#else
 struct jz_pwm_gpio pwm_pin[PWM_NUM] = {
 	[0] = {.group = GPIO_PORT_C, .pins = 1 << 2, .func = GPIO_FUNC_2},
 	// [0] = {.group = GPIO_PORT_C, .pins = 1 << 27, .func = GPIO_FUNC_1},
@@ -63,6 +83,7 @@ struct jz_pwm_gpio pwm_pin[PWM_NUM] = {
 	[6] = {.group = GPIO_PORT_D, .pins = 1 << 22, .func = GPIO_FUNC_2},
 	[7] = {.group = GPIO_PORT_D, .pins = 1 << 23, .func = GPIO_FUNC_2},
 };
+#endif /* CONFIG_SOC_T41 */
 
 #else
 struct jz_pwm_device{
@@ -89,7 +110,7 @@ static inline struct jz_pwm_chip *to_jz(struct pwm_chip *chip)
 static int jz_pwm_request(struct pwm_chip *chip, struct pwm_device *pwm)
 {
 	struct jz_pwm_chip *jz = to_jz(chip);
-#ifdef CONFIG_SOC_T40
+#if defined(CONFIG_SOC_T40) || defined(CONFIG_SOC_T41)
 	int id = jz->pwm_chrs->tcu_cha->cib.id;
 #else
 	int id = jz->pwm_chrs->tcu_cha->index;
@@ -113,7 +134,7 @@ static void jz_pwm_free(struct pwm_chip *chip, struct pwm_device *pwm)
 static int jz_pwm_enable(struct pwm_chip *chip, struct pwm_device *pwm)
 {
 	struct jz_pwm_chip *jz = to_jz(chip);
-#ifdef CONFIG_SOC_T40
+#if defined(CONFIG_SOC_T40) || defined(CONFIG_SOC_T41)
 	struct ingenic_tcu_chn *tcu_pwm = jz->pwm_chrs->tcu_cha;
 
     tcu_start_counter(tcu_pwm->cib.id);
@@ -148,7 +169,7 @@ static int jz_pwm_enable(struct pwm_chip *chip, struct pwm_device *pwm)
 	{
 		jzgpio_set_func(tcu_pwm->gpio / 32, GPIO_FUNC_0, BIT(tcu_pwm->gpio & 0x1f));
 	}
-#elif defined(CONFIG_SOC_T40)
+#elif defined(CONFIG_SOC_T40) || defined(CONFIG_SOC_T41)
 	jzgpio_set_func(pwm_pin[tcu_pwm->cib.id].group,pwm_pin[tcu_pwm->cib.id].func,pwm_pin[tcu_pwm->cib.id].pins);
 #else
 	jzgpio_set_func(tcu_pwm->gpio / 32,GPIO_FUNC_0,BIT(tcu_pwm->gpio & 0x1f));
@@ -160,7 +181,7 @@ static int jz_pwm_enable(struct pwm_chip *chip, struct pwm_device *pwm)
 static void jz_pwm_disable(struct pwm_chip *chip, struct pwm_device *pwm)
 {
 	struct jz_pwm_chip *jz = to_jz(chip);
-#ifdef CONFIG_SOC_T40
+#if defined(CONFIG_SOC_T40) || defined(CONFIG_SOC_T41)
 	struct ingenic_tcu_chn *tcu_pwm = jz->pwm_chrs->tcu_cha;
 
 	tcu_disable_counter(tcu_pwm->cib.id);
@@ -186,7 +207,7 @@ static int jz_pwm_config(struct pwm_chip *chip, struct pwm_device *pwm,
 	struct jz_pwm_chip *jz = to_jz(chip);
 	int prescaler = 0; /*prescale = 0,1,2,3,4,5*/
 	static int pwm_func[PWM_NUM] = {0};
-#ifdef CONFIG_SOC_T40
+#if defined(CONFIG_SOC_T40) || defined(CONFIG_SOC_T41)
 	struct ingenic_tcu_chn *tcu_pwm = jz->pwm_chrs->tcu_cha;
 #else
 	struct jz_tcu_chn *tcu_pwm = jz->pwm_chrs->tcu_cha;
@@ -231,7 +252,7 @@ static int jz_pwm_config(struct pwm_chip *chip, struct pwm_device *pwm,
 #endif
 	tcu_pwm->shutdown_mode = 0;
 
-#ifdef CONFIG_SOC_T40
+#if defined(CONFIG_SOC_T40) || defined(CONFIG_SOC_T41)
 	tcu_pwm->clk_div = prescaler;
 	ingenic_tcu_config(tcu_pwm);
 	ingenic_tcu_set_period(tcu_pwm->cib.id, tcu_pwm->full_num);
@@ -295,7 +316,7 @@ static int jz_pwm_config(struct pwm_chip *chip, struct pwm_device *pwm,
 int jz_pwm_set_polarity(struct pwm_chip *chip,struct pwm_device *pwm, enum pwm_polarity polarity)
 {
 	struct jz_pwm_chip *jz = to_jz(chip);
-#ifdef CONFIG_SOC_T40
+#if defined(CONFIG_SOC_T40) || defined(CONFIG_SOC_T41)
 	struct ingenic_tcu_chn *tcu_pwm = jz->pwm_chrs->tcu_cha;
 #else
 	struct jz_tcu_chn *tcu_pwm = jz->pwm_chrs->tcu_cha;
@@ -343,7 +364,7 @@ static int jz_pwm_probe(struct platform_device *pdev)
 	jz->chip.npwm = PWM_NUM;
 	jz->chip.base = -1;
 
-#ifdef CONFIG_SOC_T40
+#if defined(CONFIG_SOC_T40) || defined(CONFIG_SOC_T41)
 	jz->pwm_chrs->tcu_cha = (struct ingenic_tcu_chn *)jz->cell->platform_data;
 #else
 	jz->pwm_chrs->tcu_cha = (struct jz_tcu_chn *)jz->cell->platform_data;
@@ -381,7 +402,7 @@ static int jz_pwm_remove(struct platform_device *pdev)
 
 #ifdef CONFIG_PWM0
 static struct platform_driver jz_pwm0_driver = {
-#ifdef CONFIG_SOC_T40
+#if defined(CONFIG_SOC_T40) || defined(CONFIG_SOC_T41)
 	.driver = {
 		.name = "ingenic,tcu_chn0",
 		.owner = THIS_MODULE,
@@ -399,7 +420,7 @@ static struct platform_driver jz_pwm0_driver = {
 
 #ifdef CONFIG_PWM1
 static struct platform_driver jz_pwm1_driver = {
-#ifdef CONFIG_SOC_T40
+#if defined(CONFIG_SOC_T40) || defined(CONFIG_SOC_T41)
 	.driver = {
 		.name = "ingenic,tcu_chn1",
 		.owner = THIS_MODULE,
@@ -417,7 +438,7 @@ static struct platform_driver jz_pwm1_driver = {
 
 #ifdef CONFIG_PWM2
 static struct platform_driver jz_pwm2_driver = {
-#ifdef CONFIG_SOC_T40
+#if defined(CONFIG_SOC_T40) || defined(CONFIG_SOC_T41)
 	.driver = {
 		.name = "ingenic,tcu_chn2",
 		.owner = THIS_MODULE,
@@ -435,7 +456,7 @@ static struct platform_driver jz_pwm2_driver = {
 
 #ifdef CONFIG_PWM3
 static struct platform_driver jz_pwm3_driver = {
-#ifdef CONFIG_SOC_T40
+#if defined(CONFIG_SOC_T40) || defined(CONFIG_SOC_T41)
 	.driver = {
 		.name = "ingenic,tcu_chn3",
 		.owner = THIS_MODULE,
@@ -451,11 +472,11 @@ static struct platform_driver jz_pwm3_driver = {
 };
 #endif
 
-#if defined(CONFIG_SOC_T30) || defined(CONFIG_SOC_T21) || defined(CONFIG_SOC_T40)
+#if defined(CONFIG_SOC_T30) || defined(CONFIG_SOC_T21) || defined(CONFIG_SOC_T40) || defined(CONFIG_SOC_T41)
 #if (PWM_NUM > 4)
 #ifdef CONFIG_PWM4
 static struct platform_driver jz_pwm4_driver = {
-#ifdef CONFIG_SOC_T40
+#if defined(CONFIG_SOC_T40) || defined(CONFIG_SOC_T41)
 	.driver = {
 		.name = "ingenic,tcu_chn4",
 		.owner = THIS_MODULE,
@@ -475,7 +496,7 @@ static struct platform_driver jz_pwm4_driver = {
 #if (PWM_NUM > 5)
 #ifdef CONFIG_PWM5
 static struct platform_driver jz_pwm5_driver = {
-#ifdef CONFIG_SOC_T40
+#if defined(CONFIG_SOC_T40) || defined(CONFIG_SOC_T41)
 	.driver = {
 		.name = "ingenic,tcu_chn5",
 		.owner = THIS_MODULE,
@@ -495,7 +516,7 @@ static struct platform_driver jz_pwm5_driver = {
 #if (PWM_NUM > 6)
 #ifdef CONFIG_PWM6
 static struct platform_driver jz_pwm6_driver = {
-#ifdef CONFIG_SOC_T40
+#if defined(CONFIG_SOC_T40) || defined(CONFIG_SOC_T41)
 	.driver = {
 		.name = "ingenic,tcu_chn6",
 		.owner = THIS_MODULE,
@@ -515,7 +536,7 @@ static struct platform_driver jz_pwm6_driver = {
 #if (PWM_NUM > 7)
 #ifdef CONFIG_PWM7
 static struct platform_driver jz_pwm7_driver = {
-#ifdef CONFIG_SOC_T40
+#if defined(CONFIG_SOC_T40) || defined(CONFIG_SOC_T41)
 	.driver = {
 		.name = "ingenic,tcu_chn7",
 		.owner = THIS_MODULE,

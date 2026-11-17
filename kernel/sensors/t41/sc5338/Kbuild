@@ -1,7 +1,7 @@
 MODULE_NAME := sensor_sc5338_$(SOC)
 OUT := $(MODULE_NAME)
 
-DIR=sensors/$(SOC)/sc5338
+DIR=sensors/$(SOC)
 
 SRCS := $(DIR)/sc5338/sc5338.c
 

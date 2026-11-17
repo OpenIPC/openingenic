@@ -1,4 +1,4 @@
-MODULE_NAME := tx-isp-t40
+MODULE_NAME := tx-isp-$(SOC)
 OUT := $(MODULE_NAME)
 
 DIR=isp/$(SOC)
@@ -7,13 +7,11 @@ SRCS := \
   $(DIR)/tx-isp-funcs.c \
   $(DIR)/tx-isp-module.c
 
-# Determine the kernel version based on SOC type and KDIR
+# T41 ships blobs for both vendor kernels. Pick by the kernel being built
+# (VERSION/PATCHLEVEL/SUBLEVEL come from its top Makefile), not by KDIR,
+# which Buildroot and a plain `make -C <kernel> M=$PWD` never set.
 ifeq ($(SOC),t41)
-  ifeq ($(findstring 4.4.94,$(KDIR)),4.4.94)
-        KVERSION := 4-4-94
-  else
-        KVERSION := 3-10-14
-  endif
+  KVERSION := $(VERSION)-$(PATCHLEVEL)-$(SUBLEVEL)
 else ifeq ($(SOC),t40)
   KVERSION := 4-4-94
 endif
@@ -24,3 +22,14 @@ OBJS += $(DIR)/libt41-firmware-$(KVERSION).a
 $(OUT)-objs := $(OBJS)
 
 obj-m += $(OUT).o
+
+# The T41 ISP blob is built with Ingenic's -mmxu3: its ELF header carries
+# e_flags 0x800 (`mxu3.x` to the SDK's readelf), which upstream binutils
+# does not know and refuses to merge with our objects. The vendor's own
+# tx-isp-t41.ko links this same blob (same md5) and keeps the flag, so
+# tell ld not to enforce it -- on this module only, both at the -r link
+# and at the .ko link -- rather than editing the blob.
+ifeq ($(SOC),t41)
+%/$(OUT).o: ldflags-y += --no-warn-mismatch
+%/$(OUT).ko: LDFLAGS_MODULE += --no-warn-mismatch
+endif
