@@ -336,7 +336,12 @@ static int jz_dtrng_probe(struct platform_device *pdev)
 		goto failed_clk;
 	}
 
-	clk_prepare_enable(dtrng_ope->clk);
+	ret = clk_prepare_enable(dtrng_ope->clk);
+	if (ret) {
+		dev_err(&pdev->dev, "dtrng clk enable failed!\n");
+		clk_put(dtrng_ope->clk);
+		goto failed_clk;
+	}
 #else
 	dtrng_ope->clk = clk_get(dtrng_ope->dev, "dtrng");
 	if (IS_ERR(dtrng_ope->clk)) {
@@ -382,6 +387,7 @@ failed_alloc_buf:
 #else
 	clk_disable(dtrng_ope->clk);
 #endif
+	clk_put(dtrng_ope->clk);
 failed_clk:
 	misc_deregister(&dtrng_ope->dtrng_dev);
 failed_misc_register:
@@ -403,7 +409,7 @@ static int jz_dtrng_remove(struct platform_device *pdev)
 	proc_remove(entry);
 #if defined(CONFIG_SOC_T40) || defined(CONFIG_SOC_T41)
 	clk_disable_unprepare(dtrng_ope->clk);
-	devm_clk_put(&pdev->dev, dtrng_ope->clk);
+	clk_put(dtrng_ope->clk);
 #else
 	clk_disable(dtrng_ope->clk);
     clk_put(dtrng_ope->clk);

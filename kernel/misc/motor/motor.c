@@ -784,7 +784,12 @@ static int motor_info_show(struct seq_file *m, void *v)
 	int index = 0;
 
 #if defined(CONFIG_SOC_T40) || defined(CONFIG_SOC_T41)
-	seq_printf(m ,"The version of Motor driver is %s. SoC is T40\n",JZ_MOTOR_DRIVER_VERSION);
+	seq_printf(m ,"The version of Motor driver is %s. SoC is %s\n",JZ_MOTOR_DRIVER_VERSION,
+#ifdef CONFIG_SOC_T41
+		   "T41");
+#else
+		   "T40");
+#endif
 	seq_printf(m ,"Motor driver is %s\n", mdev->flag?"opened":"closed");
 	seq_printf(m ,"The max speed is %d and the min speed is %d\n", MOTOR_MAX_SPEED, MOTOR_MIN_SPEED);
 	motor_get_message(mdev, &msg);

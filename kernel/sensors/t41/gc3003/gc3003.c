@@ -169,7 +169,7 @@ struct tx_isp_mipi_bus gc3003a_mipi_linear= {
 };
 
 struct tx_isp_sensor_attribute gc3003a_attr={
-	.name = "gc3003a",
+	.name = "gc3003",
 	.chip_id = 0x300300,
 	.cbus_type = TX_SENSOR_CONTROL_INTERFACE_I2C,
 	.cbus_mask = TISP_SBUS_MASK_SAMPLE_8BITS | TISP_SBUS_MASK_ADDR_16BITS,
@@ -587,13 +587,13 @@ static int gc3003a_s_stream(struct tx_isp_subdev *sd, struct tx_isp_initarg *ini
 		if (sensor->video.state == TX_ISP_MODULE_INIT) {
 			ret = gc3003a_write_array(sd, gc3003a_stream_on);
 			sensor->video.state = TX_ISP_MODULE_RUNNING;
-			pr_debug("gc3003a stream on\n");
+			pr_debug("gc3003 stream on\n");
 			sensor->video.state = TX_ISP_MODULE_RUNNING;
 		}
 	} else {
 		ret = gc3003a_write_array(sd, gc3003a_stream_off);
 		sensor->video.state = TX_ISP_MODULE_INIT;
-		pr_debug("gc3003a stream off\n");
+		pr_debug("gc3003 stream off\n");
 	}
 
 	return ret;
@@ -770,7 +770,7 @@ static int gc3003a_g_chip_ident(struct tx_isp_subdev *sd,
 
 	sensor_attr_check(sd);
 	if(reset_gpio != -1){
-		ret = private_gpio_request(reset_gpio,"gc3003a_reset");
+		ret = private_gpio_request(reset_gpio,"gc3003_reset");
 		if(!ret){
 			private_gpio_direction_output(reset_gpio, 1);
 			private_msleep(10);
@@ -783,7 +783,7 @@ static int gc3003a_g_chip_ident(struct tx_isp_subdev *sd,
 		}
 	}
 	if(pwdn_gpio != -1){
-		ret = private_gpio_request(pwdn_gpio,"gc3003a_pwdn");
+		ret = private_gpio_request(pwdn_gpio,"gc3003_pwdn");
 		if(!ret){
 			private_gpio_direction_output(pwdn_gpio, 0);
 			private_msleep(10);
@@ -795,13 +795,13 @@ static int gc3003a_g_chip_ident(struct tx_isp_subdev *sd,
 	}
 	ret = gc3003a_detect(sd, &ident);
 	if (ret) {
-		ISP_ERROR("chip found @ 0x%x (%s) is not an gc3003a chip.\n",
+		ISP_ERROR("chip found @ 0x%x (%s) is not an gc3003 chip.\n",
 			  client->addr, client->adapter->name);
 		return ret;
 	}
-	ISP_WARNING("gc3003a chip found @ 0x%02x (%s)\n sensor drv version %s", client->addr, client->adapter->name, SENSOR_VERSION);
+	ISP_WARNING("gc3003 chip found @ 0x%02x (%s)\n sensor drv version %s", client->addr, client->adapter->name, SENSOR_VERSION);
 	if(chip){
-		memcpy(chip->name, "gc3003a", sizeof("gc3003a"));
+		memcpy(chip->name, "gc3003", sizeof("gc3003"));
 		chip->ident = ident;
 		chip->revision = SENSOR_VERSION;
 	}
@@ -948,7 +948,7 @@ static struct tx_isp_subdev_ops gc3003a_ops = {
 /* It's the sensor device */
 static u64 tx_isp_module_dma_mask = ~(u64)0;
 struct platform_device sensor_platform_device = {
-	.name = "gc3003a",
+	.name = "gc3003",
 	.id = -1,
 	.dev = {
 		.dma_mask = &tx_isp_module_dma_mask,
@@ -988,7 +988,7 @@ static int gc3003a_probe(struct i2c_client *client, const struct i2c_device_id *
 	tx_isp_set_subdev_hostdata(sd, sensor);
 	private_i2c_set_clientdata(client, sd);
 
-	pr_debug("probe ok ------->gc3003a\n");
+	pr_debug("probe ok ------->gc3003\n");
 
 	return 0;
 }
@@ -1012,7 +1012,7 @@ static int gc3003a_remove(struct i2c_client *client)
 }
 
 static const struct i2c_device_id gc3003a_id[] = {
-	{ "gc3003a", 0 },
+	{ "gc3003", 0 },
 	{ }
 };
 MODULE_DEVICE_TABLE(i2c, gc3003a_id);
@@ -1020,7 +1020,7 @@ MODULE_DEVICE_TABLE(i2c, gc3003a_id);
 static struct i2c_driver gc3003a_driver = {
 	.driver = {
 		.owner	= THIS_MODULE,
-		.name	= "gc3003a",
+		.name	= "gc3003",
 	},
 	.probe		= gc3003a_probe,
 	.remove		= gc3003a_remove,
@@ -1040,5 +1040,5 @@ static __exit void exit_gc3003a(void)
 module_init(init_gc3003a);
 module_exit(exit_gc3003a);
 
-MODULE_DESCRIPTION("A low-level driver for gc3003a sensors");
+MODULE_DESCRIPTION("A low-level driver for gc3003 sensors");
 MODULE_LICENSE("GPL");
