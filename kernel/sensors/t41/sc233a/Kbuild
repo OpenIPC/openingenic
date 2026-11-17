@@ -1,7 +1,7 @@
 MODULE_NAME := sensor_sc233a_$(SOC)
 OUT := $(MODULE_NAME)
 
-DIR=sensors/$(SOC)/sc233a
+DIR=sensors/$(SOC)
 
 SRCS := $(DIR)/sc233a/sc233a.c
 

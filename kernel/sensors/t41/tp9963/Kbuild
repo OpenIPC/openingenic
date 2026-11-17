@@ -1,7 +1,7 @@
 MODULE_NAME := sensor_tp9963_$(SOC)
 OUT := $(MODULE_NAME)
 
-DIR=sensors/$(SOC)/tp9963
+DIR=sensors/$(SOC)
 
 SRCS := $(DIR)/tp9963/tp9963.c
 

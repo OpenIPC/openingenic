@@ -1,7 +1,7 @@
 MODULE_NAME := sensor_imx327_$(SOC)
 OUT := $(MODULE_NAME)
 
-DIR=sensors/$(SOC)/imx327
+DIR=sensors/$(SOC)
 
 SRCS := $(DIR)/imx327/imx327.c
 
