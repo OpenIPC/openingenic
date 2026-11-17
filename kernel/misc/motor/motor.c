@@ -30,14 +30,16 @@
 #include <linux/mfd/core.h>
 #include <linux/mempolicy.h>
 #include <linux/interrupt.h>
-#ifdef CONFIG_SOC_T40
+#if defined(CONFIG_SOC_T40) || defined(CONFIG_SOC_T41)
 #include <linux/mfd/ingenic-tcu.h>
 #else
 #include <linux/mfd/jz_tcu.h>
 #endif
 #include <linux/miscdevice.h>
 #include <linux/platform_device.h>
-#ifdef CONFIG_SOC_T40
+#if defined(CONFIG_SOC_T41)
+#include <dt-bindings/interrupt-controller/t41-irq.h>
+#elif defined(CONFIG_SOC_T40)
 #include <dt-bindings/interrupt-controller/t40-irq.h>
 #else
 #include <soc/irq.h>
@@ -408,7 +410,7 @@ static long motor_ops_move(struct motor_device *mdev, int x, int y)
 	mutex_unlock(&mdev->dev_mutex);
 	/* printk("%s%d x=%d y=%d t=%d\n",__func__,__LINE__,mdev->dst_move.one.x,mdev->dst_move.one.y,mdev->dst_move.times); */
 	/* printk("x_dir=%d,y_dir=%d\n",x_dir,y_dir); */
-#ifdef CONFIG_SOC_T40
+#if defined(CONFIG_SOC_T40) || defined(CONFIG_SOC_T41)
 	ingenic_tcu_counter_begin(mdev->tcu);
 #else
 	jz_tcu_enable_counter(mdev->tcu);
@@ -466,7 +468,7 @@ static void motor_ops_stop(struct motor_device *mdev)
 			break;
 		}
 	}while(ret == -ERESTARTSYS);
-#ifdef CONFIG_SOC_T40
+#if defined(CONFIG_SOC_T40) || defined(CONFIG_SOC_T41)
 	ingenic_tcu_counter_stop(mdev->tcu);
 #else
 	jz_tcu_disable_counter(mdev->tcu);
@@ -503,7 +505,7 @@ static long motor_ops_cruise(struct motor_device *mdev)
 	motors[VERTICAL_MOTOR].state = MOTOR_OPS_CRUISE;
 	spin_unlock_irqrestore(&mdev->slock, flags);
 	mutex_unlock(&mdev->dev_mutex);
-#ifdef CONFIG_SOC_T40
+#if defined(CONFIG_SOC_T40) || defined(CONFIG_SOC_T41)
 	ingenic_tcu_counter_begin(mdev->tcu);
 #else
 	jz_tcu_enable_counter(mdev->tcu);
@@ -579,7 +581,7 @@ static long motor_ops_reset(struct motor_device *mdev, struct motor_reset_data *
 		mdev->dev_state = MOTOR_OPS_RESET;
 		spin_unlock_irqrestore(&mdev->slock, flags);
 		mutex_unlock(&mdev->dev_mutex);
-#ifdef CONFIG_SOC_T40
+#if defined(CONFIG_SOC_T40) || defined(CONFIG_SOC_T41)
 		ingenic_tcu_counter_begin(mdev->tcu);
 #else
 		jz_tcu_enable_counter(mdev->tcu);
@@ -620,7 +622,7 @@ static long motor_ops_reset(struct motor_device *mdev, struct motor_reset_data *
 	 rdata->y_cur_step	= mdev->motors[VERTICAL_MOTOR].cur_steps;
 
 exit:
-#ifdef CONFIG_SOC_T40
+#if defined(CONFIG_SOC_T40) || defined(CONFIG_SOC_T41)
 	ingenic_tcu_counter_stop(mdev->tcu);
 #else
 	jz_tcu_disable_counter(mdev->tcu);
@@ -640,7 +642,7 @@ static int motor_speed(struct motor_device *mdev, int speed)
 	__asm__("ssnop");
 
 	mdev->tcu_speed = speed;
-#ifdef CONFIG_SOC_T40
+#if defined(CONFIG_SOC_T40) || defined(CONFIG_SOC_T41)
 	ingenic_tcu_set_period(mdev->tcu->cib.id,(24000000 / 64 / mdev->tcu_speed));
 #else
 	jz_tcu_set_period(mdev->tcu, (24000000 / 64 / mdev->tcu_speed));
@@ -781,7 +783,7 @@ static int motor_info_show(struct seq_file *m, void *v)
 	struct motor_message msg;
 	int index = 0;
 
-#ifdef CONFIG_SOC_T40
+#if defined(CONFIG_SOC_T40) || defined(CONFIG_SOC_T41)
 	seq_printf(m ,"The version of Motor driver is %s. SoC is T40\n",JZ_MOTOR_DRIVER_VERSION);
 	seq_printf(m ,"Motor driver is %s\n", mdev->flag?"opened":"closed");
 	seq_printf(m ,"The max speed is %d and the min speed is %d\n", MOTOR_MAX_SPEED, MOTOR_MIN_SPEED);
@@ -862,7 +864,7 @@ static int motor_probe(struct platform_device *pdev)
 
 	mdev->dev = &pdev->dev;
 
-#ifdef CONFIG_SOC_T40
+#if defined(CONFIG_SOC_T40) || defined(CONFIG_SOC_T41)
 	mdev->tcu = (struct ingenic_tcu_chn *)mdev->cell->platform_data;
 #else
 	mdev->tcu = (struct jz_tcu_chn *)mdev->cell->platform_data;
@@ -870,7 +872,7 @@ static int motor_probe(struct platform_device *pdev)
 	mdev->tcu->irq_type = FULL_IRQ_MODE;
 	mdev->tcu->clk_src = TCU_CLKSRC_EXT;
 	mdev->tcu_speed = MOTOR_MAX_SPEED;
-#ifdef CONFIG_SOC_T40
+#if defined(CONFIG_SOC_T40) || defined(CONFIG_SOC_T41)
 	mdev->tcu->is_pwm = 0;
 	mdev->tcu->cib.func = TRACKBALL_FUNC;
 	mdev->tcu->clk_div = TCU_PRESCALE_64;
@@ -939,7 +941,7 @@ static int motor_probe(struct platform_device *pdev)
 	mdev->motors[HORIZONTAL_MOTOR].max_steps = hmaxstep+100;
 	mdev->motors[VERTICAL_MOTOR].max_steps = vmaxstep+30;
 
-#ifdef CONFIG_SOC_T40
+#if defined(CONFIG_SOC_T40) || defined(CONFIG_SOC_T41)
 	ingenic_tcu_channel_to_virq(mdev->tcu);
 	mdev->run_step_irq = mdev->tcu->virq[0];
 #else
@@ -983,7 +985,7 @@ static int motor_probe(struct platform_device *pdev)
 	motor_set_default(mdev);
 	mdev->flag = 0;
 	//printk("%s%d\n",__func__,__LINE__);
-#ifdef CONFIG_SOC_T40
+#if defined(CONFIG_SOC_T40) || defined(CONFIG_SOC_T41)
 	ingenic_tcu_counter_begin(mdev->tcu);
 #endif
 	return 0;
@@ -1023,7 +1025,7 @@ static int motor_remove(struct platform_device *pdev)
 	struct motor_device *mdev = platform_get_drvdata(pdev);
 	struct motor_driver *motor = NULL;
 
-#ifdef CONFIG_SOC_T40
+#if defined(CONFIG_SOC_T40) || defined(CONFIG_SOC_T41)
 	ingenic_tcu_counter_stop(mdev->tcu);
 #else
 	jz_tcu_disable_counter(mdev->tcu);
@@ -1063,7 +1065,7 @@ static int motor_remove(struct platform_device *pdev)
 	return 0;
 }
 
-#ifdef CONFIG_SOC_T40
+#if defined(CONFIG_SOC_T40) || defined(CONFIG_SOC_T41)
 static struct of_device_id motor_match[]={
 	{.compatible = "ingenic,tcu_chn2",},
 	{}
@@ -1075,7 +1077,7 @@ static struct platform_driver motor_driver = {
 	.remove = motor_remove,
 	.driver = {
 		.name	= "tcu_chn2",
-#ifdef CONFIG_SOC_T40
+#if defined(CONFIG_SOC_T40) || defined(CONFIG_SOC_T41)
 		.of_match_table = motor_match,
 #endif
 		.owner	= THIS_MODULE,

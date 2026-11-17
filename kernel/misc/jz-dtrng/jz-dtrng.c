@@ -25,7 +25,9 @@
 #include <linux/proc_fs.h>
 #include <linux/miscdevice.h>
 #include <soc/base.h>
-#ifdef CONFIG_SOC_T40
+#if defined(CONFIG_SOC_T41)
+#include <dt-bindings/interrupt-controller/t41-irq.h>
+#elif defined(CONFIG_SOC_T40)
 #include <dt-bindings/interrupt-controller/t40-irq.h>
 #else
 #include <soc/irq.h>
@@ -326,7 +328,7 @@ static int jz_dtrng_probe(struct platform_device *pdev)
 		goto failed_misc_register;
 	}
 
-#ifdef CONFIG_SOC_T40
+#if defined(CONFIG_SOC_T40) || defined(CONFIG_SOC_T41)
 	dtrng_ope->clk = clk_get(dtrng_ope->dev, "gate_dtrng");
 	if (IS_ERR(dtrng_ope->clk)) {
 		dev_err(&pdev->dev, "dtrng clk get failed!\n");
@@ -375,7 +377,7 @@ failed_create_dtrng:
 failed_mkdir_dtrng:
 	kfree(dtrng_ope->sbuff);
 failed_alloc_buf:
-#ifdef CONFIG_SOC_T40
+#if defined(CONFIG_SOC_T40) || defined(CONFIG_SOC_T41)
 	clk_disable_unprepare(dtrng_ope->clk);
 #else
 	clk_disable(dtrng_ope->clk);
@@ -399,7 +401,7 @@ static int jz_dtrng_remove(struct platform_device *pdev)
 	struct dtrng_operation *dtrng_ope = platform_get_drvdata(pdev);
 	proc_remove(proc_dtrng_dir);
 	proc_remove(entry);
-#ifdef CONFIG_SOC_T40
+#if defined(CONFIG_SOC_T40) || defined(CONFIG_SOC_T41)
 	clk_disable_unprepare(dtrng_ope->clk);
 	devm_clk_put(&pdev->dev, dtrng_ope->clk);
 #else
@@ -425,7 +427,7 @@ static struct resource jz_dtrng_resources[] = {
 		.end    = DTRNG_IOBASE + 0x20,
 		.flags  = IORESOURCE_MEM,
 	},
-#ifdef CONFIG_SOC_T40
+#if defined(CONFIG_SOC_T40) || defined(CONFIG_SOC_T41)
 	[1] = {
 		.start  = IRQ_DTRNG+8,
 		.end    = IRQ_DTRNG+8,
