@@ -220,6 +220,7 @@ SENSOR_INFO_T g_sinfo[] =
 #ifdef CONFIG_SOC_T41
 	{"gc2063", 0x37,  "cgu_cim", 24000000, {0x20, 0x53}, 1, {0xf0, 0xf1}, 1, 2, NULL},
 	{"gc4663", 0x29,  "cgu_cim", 24000000, {0x46, 0x53}, 1, {0x03f0, 0x03f1}, 2, 2, NULL},
+	{"gc5603", 0x31,  "cgu_cim", 27000000, {0x56, 0x03}, 1, {0x03f0, 0x03f1}, 2, 2, NULL},
 	/* T41 SDK sensors. gc3003a is not here: it answers 0x30 0x03 at
 	 * 0x03f0/0x03f1 like gc3003, and only an OTP read tells them apart.
 	 * Neither is sc501ai, whose 0xce1f is sc500ai's. Set those with
