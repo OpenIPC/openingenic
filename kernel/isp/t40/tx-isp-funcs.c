@@ -1,4 +1,5 @@
 #include <linux/mm.h>
+#include <linux/version.h>
 #include <linux/fs.h>
 #include <linux/clk.h>
 #include <linux/pwm.h>
@@ -196,9 +197,26 @@ void private_enable_irq(unsigned int irq)
 	enable_irq(irq);
 }
 
+/*
+ * The firmware turns the ISP interrupt off from tx_isp_disable_irq(), which
+ * holds its own spin_lock_irqsave() around the call.  disable_irq() would
+ * wait there for a running threaded handler, i.e. sleep with the lock held
+ * and interrupts off: "BUG: scheduling while atomic" at stream-off, a
+ * preempt count driven negative, and in time a scheduler oops.  Called like
+ * that, take the line off and wait only for a hard handler running on the
+ * other core, which does not sleep.
+ */
 void private_disable_irq(unsigned int irq)
 {
-	disable_irq(irq);
+	if (!irqs_disabled()) {
+		disable_irq(irq);
+		return;
+	}
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 1, 0)
+	disable_hardirq(irq);
+#else
+	disable_irq_nosync(irq);
+#endif
 }
 
 void private_free_irq(unsigned int irq, void *dev_id)
